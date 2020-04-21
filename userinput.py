@@ -3,6 +3,7 @@ import pygame as pg
 class UserInputGroup:
     def __init__(self):
         self._members = pg.sprite.Group()
+        self._bounds = pg.Rect(0,0,0,0)
 
     def process_events(self, events):
         for e in events:
@@ -90,12 +91,7 @@ class UserInputGroup:
         return len(self._members)
 
     def __iadd__(self, ip):
-        assert ip is not None
-        for m in self._members:
-            if ip.name == m.name:
-                raise ValueError(f"Already have an input named: {ip.name}")
-
-        self._members.add(ip)
+        self.add(ip)
         return self
 
     def __isub__(self, ip):
@@ -105,22 +101,34 @@ class UserInputGroup:
                 return self
         return self
 
-    def append(self, ip):
+    def add(self, ip):
         assert ip is not None
+        for m in self._members:
+            if ip.name == m.name:
+                raise ValueError(f"Already have an input named: {ip.name}")
+
         self._members.add(ip)
         return self
 
     def __iter__(self):
         return iter(self._members)
 
+    def _calculate_bouds(self):
+        minx = 0
+        miny = 0
+        maxx = 0
+        maxy = 0
+        for m in self._members:
+            pass
+
 class UserInput(pg.sprite.Sprite):
-    def __init__(self, parent_group, **kwargs):
+    def __init__(self, parent_group, name, **kwargs):
         super().__init__()
 
         self._down = False
         self._has_focus = False
 
-        self._name = kwargs.pop("name", '')
+        self._name = name
         self._center = kwargs.pop("center", (0,0))
         self._text = kwargs.pop("text", '')
         self._font = kwargs.pop("font", pg.font.SysFont('Arial', 16, False, False))
@@ -257,12 +265,12 @@ class UserInput(pg.sprite.Sprite):
         self._dirty = True
 
 class Button(UserInput):
-    def __init__(self, parent_group, **kwargs):
+    def __init__(self, parent_group, name, **kwargs):
         ta = kwargs.pop("text_align", 2)
         fg = kwargs.pop("fg_color", (255,255,255))
         bg = kwargs.pop("bg_color", (0,0,0))
         bt = kwargs.pop("border_thick", 0)
-        super().__init__(parent_group, text_align = ta, fg_color = fg, bg_color = bg, border_thick = bt, **kwargs)
+        super().__init__(parent_group, name, text_align = ta, fg_color = fg, bg_color = bg, border_thick = bt, **kwargs)
     
     def on_mousedown(self):
         super().on_mousedown()
@@ -273,11 +281,11 @@ class Button(UserInput):
         self._has_focus = False
 
 class TextBox(UserInput):
-    def __init__(self, parent_group, **kwargs):
+    def __init__(self, parent_group, name, **kwargs):
         ta = kwargs.pop("text_align", 1)
         fg = kwargs.pop("fg_color", (0,0,0))
         bg = kwargs.pop("bg_color", (255,255,255))
-        super().__init__(parent_group, text_align = ta, fg_color = fg, bg_color = bg, **kwargs)
+        super().__init__(parent_group, name, text_align = ta, fg_color = fg, bg_color = bg, **kwargs)
 
     def on_keydown(self, key_event):
         super().on_keydown(key_event)
@@ -289,19 +297,19 @@ class TextBox(UserInput):
                 self._text += chr
 
 class Label(UserInput):
-    def __init__(self, parent_group, **kwargs):
+    def __init__(self, parent_group, name, **kwargs):
         ta = kwargs.pop("text_align", 1)
         fg = kwargs.pop("fg_color", (0,0,0))
         bg = kwargs.pop("bg_color", (255,255,255))
         bt = kwargs.pop("border_thick", 0)
-        super().__init__(parent_group, text_align = ta, fg_color = fg, bg_color = bg, border_thick = bt, **kwargs)
+        super().__init__(parent_group, name, text_align = ta, fg_color = fg, bg_color = bg, border_thick = bt, **kwargs)
 
 class ChoiceBox(UserInput):
-    def __init__(self, parent_group, items, **kwargs):
+    def __init__(self, parent_group, name, items, **kwargs):
         ta = kwargs.pop("text_align", 1)
         fg = kwargs.pop("fg_color", (0,0,0))
         bg = kwargs.pop("bg_color", (255,255,255))
-        super().__init__(parent_group, text_align = ta, fg_color = fg, bg_color = bg, **kwargs)
+        super().__init__(parent_group, name, text_align = ta, fg_color = fg, bg_color = bg, **kwargs)
 
         self._items = []
         if isinstance(items, list): self._items = items
@@ -312,21 +320,25 @@ class ChoiceBox(UserInput):
         self._render_chain.insert(len(self._render_chain)-2, lambda surf, width, height, foreground, background, highlight, padding, font, text, border_thick: self._render_arrows(surf, width, height, foreground, background, highlight, padding, font, text, border_thick))
 
     def _render_arrows(self, surf, width, height, foreground, background, highlight, padding, font, text, border_thick):
-        aw = self._height//5
-        
-        pg.draw.rect(surf, background, pg.Rect(width-border_thick*4-aw, border_thick, aw+border_thick*4, height-border_thick*2), 0)
-
-        down_points = [[-aw//2, -aw//2], [aw//2, -aw//2], [0, aw//2]]
-        up_points = [[-aw//2, aw//2], [aw//2, aw//2], [0, -aw//2]]
-        for p in down_points:
-            p[0] += width-border_thick*4-aw//2
-            p[1] += height*3//4-border_thick*2-aw//4
-        for p in up_points:
-            p[0] += width-border_thick*4-aw//2
-            p[1] += height//4+border_thick*2+aw//4
+        aw = self._height//6
+        wf = 1.2
+        down_points = [[-aw*wf//2, -aw//2//wf], [aw*wf//2, -aw//2//wf], [0, aw//2//wf]]
+        up_points = [[-aw*wf//2, aw//2//wf], [aw*wf//2, aw//2//wf], [0, -aw//2//wf]]
+        m = height-aw*2
+        for d in down_points:
+            d[0] += width-border_thick*4-aw//2
+            d[1] += height//2+aw//2+m//8
+        for u in up_points:
+            u[0] += width-border_thick*4-aw//2
+            u[1] += height//2-aw//2-m//8
 
         clr = highlight if self._has_focus else foreground
+        #Down arrow background and arrow
+        pg.draw.rect(surf, background, pg.Rect(width-aw-m//4, height//2, aw+m//4, height//2), 0)
         pg.draw.polygon(surf, clr, down_points, 0)
+        
+        #Up arrow background and arrow
+        pg.draw.rect(surf, background, pg.Rect(width-aw-m//4, 0, aw+m//4, height//2), 0)
         pg.draw.polygon(surf, clr, up_points, 0)
 
     def update(self, delta_time):
