@@ -44,17 +44,20 @@ Access value (called when needed)
 
 List of keyword args that can be passed into the constructor of each input, with default value
 
-        ("width", 50)
-        ("height", 20)
-        ("bg_color", (0,0,0))
+        ("name", '')
         ("center", (0,0))
         ("text", '')
-        ("fg_color", (255,255,255))
-        ("font", pg.font.SysFont('Arial', False, False, 16))
-        ("text_align", 1) # 1: left, 2: center, 3: right
-        ("hl_color", (0,50,200))
+        ("font", pg.font.SysFont('Arial', 16, False, False))
+        
+        ("width", min_size[0]) # min_size from pygame.font.size
+        ("height", min_size[1]*2) # min_size from pygame.font.size
         ("padding", 20)
+        ("bg_color", (0,0,0))
+        ("fg_color", (255,255,255))
+        ("hl_color", (0,100,200))
         ("border_thick", 2)
+        ("text_align", 1) # 1: left, 2: center, 3: right
+        ("on_click", lambda: None)
 
 
 <b>Minimal working example:</b>
