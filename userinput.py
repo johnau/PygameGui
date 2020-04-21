@@ -249,10 +249,14 @@ class Button(UserInput):
         bt = kwargs.pop("border_thick", 0)
         super().__init__(parent_group, text_align = ta, fg_color = fg, bg_color = bg, border_thick = bt, **kwargs)
     
+    def on_mousedown(self):
+        super().on_mousedown()
+        self._has_focus = True
+
     def on_mouseup(self):
         super().on_mouseup()
         self._on_click_fn()
-        self._has_focus = True
+        self._has_focus = False
         self.dirty = True
 
 class TextBox(UserInput):
