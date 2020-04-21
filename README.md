@@ -28,6 +28,18 @@ Create Inputs (names must be unique within the group)
     click_func = lambda: print(f"Textbox text: {textbox.text}")
     button = Button(self.inputs, name = "button1", width = 200,  text = "A Button", center = (200, 150), on_click = click_func)
     
+Pass Through Events
+
+    for e in events:
+        if e.type == pygame.MOUSEBUTTONDOWN:
+            self.inputs.mouse_down(pygame.mouse.get_pos())
+        if e.type == pygame.MOUSEBUTTONUP:
+            self.inputs.mouse_up(pygame.mouse.get_pos())
+        if e.type == pygame.KEYDOWN:
+            self.inputs.key_down(e)
+        if e.type == pygame.KEYUP:
+            self.inputs.key_up(e)
+    
 Update (probably from update(delta_time) function)
 
 `self.inputs.update(delta_time)`
