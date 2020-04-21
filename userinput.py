@@ -12,6 +12,14 @@ class UserInputGroup:
         for m in self._members:
             surface.blit(m.image, (m.rect.x, m.rect.y))
 
+    def get_input(self, name):
+        for m in self._members:
+            if m.name == name:
+                return m
+
+        print(f"No input named '{name}' exists")
+        return None
+
     def mouse_down(self, mouse_pos):
         any_hit = 0
         for m in self._members:
@@ -69,6 +77,11 @@ class UserInputGroup:
         #if isinstance(ip, (tuple, list)):
         #    self._members += ip
         #    return self
+
+        for m in self._members:
+            if ip.name == m.name:
+                raise ValueError(f"Already have an input named: {ip.name}")
+
         self._members.add(ip)
         return self
 
@@ -90,22 +103,22 @@ class UserInputGroup:
 class UserInput(pg.sprite.Sprite):
     def __init__(self, parent_group, **kwargs):
         super().__init__()
-        parent_group += self
-        self.parent_group = parent_group
+
         self._down = False
         self._has_focus = False
 
+        self._name = kwargs.pop("name", '')
+        self._center = kwargs.pop("center", (0,0))
         self._width = kwargs.pop("width", 50)
         self._height = kwargs.pop("height", 20)
+        self._padding = kwargs.pop("padding", 20)
         self._bg_color = kwargs.pop("bg_color", (0,0,0))
-        self._center = kwargs.pop("center", (0,0))
-        self._text = kwargs.pop("text", '')
         self._fg_color = kwargs.pop("fg_color", (255,255,255))
+        self._hl_color = kwargs.pop("hl_color", (0,50,200))
+        self._border_thick = kwargs.pop("border_thick", 2)
+        self._text = kwargs.pop("text", '')
         self._font = kwargs.pop("font", pg.font.SysFont('Arial', False, False, 16))
         self._text_align = kwargs.pop("text_align", 1) # 1: left, 2: center, 3: right
-        self._hl_color = kwargs.pop("hl_color", (0,50,200))
-        self._padding = kwargs.pop("padding", 20)
-        self._border_thick = kwargs.pop("border_thick", 2)
 
         surf = pg.Surface((self._width, self._height))
         self.image = surf.convert()
@@ -114,12 +127,15 @@ class UserInput(pg.sprite.Sprite):
         self._render_chain = [
                 lambda surf, width, height, foreground, background, highlight, padding, font, text, border_thick: self._render_bg(surf, width, height, foreground, background, highlight, padding, font, text, border_thick),
                 lambda surf, width, height, foreground, background, highlight, padding, font, text, border_thick: self._render_text(surf, width, height, foreground, background, highlight, padding, font, text, border_thick),
-                lambda surf, width, height, foreground, background, highlight, padding, font, text, border_thick: self._render_border(surf, width, height, foreground, background, highlight, padding, font, text, border_thick),
+                lambda surf, width, height, foreground, background, highlight, padding, font, text, border_thick: self._render_border(surf, width, height, foreground, background, highlight, padding, font, text, border_thick)
             ]
 
         self._dirty = True
 
         self._dt = 0
+
+        self.parent_group = parent_group
+        parent_group += self
 
     def _render_internal(self):
         if not self._dirty: return
@@ -175,6 +191,14 @@ class UserInput(pg.sprite.Sprite):
         self._has_focus = b
 
     @property
+    def name(self):
+        return self._name
+
+    #@name.setter
+    #def name(self, n):
+    #    self._name = n
+
+    @property
     def width(self):
         return self._width
 
@@ -196,6 +220,14 @@ class UserInput(pg.sprite.Sprite):
         self.rect.height = hgt
         self.rect.y += oh-hgt
 
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, txt):
+        self._text = txt
+
     def on_mousedown(self):
         if not self._down:
             self._down = True
@@ -214,17 +246,24 @@ class UserInput(pg.sprite.Sprite):
 
 class Button(UserInput):
     def __init__(self, parent_group, **kwargs):
-        super().__init__(parent_group, text_align = 2, fg_color = (255,255,255), bg_color = (0,0,0), border_thick = 0, **kwargs)
+        ta = kwargs.pop("text_align", 2)
+        fg = kwargs.pop("fg_color", (255,255,255))
+        bg = kwargs.pop("bg_color", (0,0,0))
+        bt = kwargs.pop("border_thick", 0)
+        super().__init__(parent_group, text_align = ta, fg_color = fg, bg_color = bg, border_thick = bt, **kwargs)
     
     def on_mouseup(self):
         super().on_mouseup()
         print("Activate button")
-        self.has_focus = True
+        self._has_focus = True
         self.dirty = True
 
 class TextBox(UserInput):
     def __init__(self, parent_group, **kwargs):
-        super().__init__(parent_group, text_align = 1, fg_color = (0,0,0), bg_color = (255,255,255), **kwargs)
+        ta = kwargs.pop("text_align", 1)
+        fg = kwargs.pop("fg_color", (0,0,0))
+        bg = kwargs.pop("bg_color", (255,255,255))
+        super().__init__(parent_group, text_align = ta, fg_color = fg, bg_color = bg, **kwargs)
 
     def on_keydown(self, key_event):
         if key_event.key == pg.K_BACKSPACE:
@@ -238,8 +277,8 @@ class TextBox(UserInput):
 
     def on_mousedown(self):
         super().on_mousedown()
-        if not self.has_focus:
-            self.has_focus = True
+        if not self._has_focus:
+            self._has_focus = True
             self.dirty = True
 
     def on_mouseup(self, hit = False):
@@ -247,11 +286,18 @@ class TextBox(UserInput):
 
 class Label(UserInput):
     def __init__(self, parent_group, **kwargs):
-        super().__init__(parent_group, text_align = 1, fg_color = (0,0,0), bg_color = (255,255,255), border_thick = 0, **kwargs)
+        ta = kwargs.pop("text_align", 1)
+        fg = kwargs.pop("fg_color", (0,0,0))
+        bg = kwargs.pop("bg_color", (255,255,255))
+        bt = kwargs.pop("border_thick", 0)
+        super().__init__(parent_group, text_align = ta, fg_color = fg, bg_color = bg, border_thick = bt, **kwargs)
 
 class ChoiceBox(UserInput):
     def __init__(self, parent_group, items, **kwargs):
-        super().__init__(parent_group, text_align = 1, fg_color = (0,0,0), bg_color = (255,255,255), **kwargs)
+        ta = kwargs.pop("text_align", 1)
+        fg = kwargs.pop("fg_color", (0,0,0))
+        bg = kwargs.pop("bg_color", (255,255,255))
+        super().__init__(parent_group, text_align = ta, fg_color = fg, bg_color = bg, **kwargs)
 
         self._items = []
         if isinstance(items, list): self._items = items
@@ -313,8 +359,8 @@ class ChoiceBox(UserInput):
 
     def on_mousedown(self):
         super().on_mousedown()
-        if not self.has_focus:
-            self.has_focus = True
+        if not self._has_focus:
+            self._has_focus = True
             self.dirty = True
 
     def on_mouseup(self, hit = False):
