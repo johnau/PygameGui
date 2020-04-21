@@ -4,6 +4,17 @@ class UserInputGroup:
     def __init__(self):
         self._members = pg.sprite.Group()
 
+    def process_events(self, events):
+        for e in events:
+            if e.type == pg.MOUSEBUTTONDOWN:
+                self.mouse_down(pg.mouse.get_pos())
+            if e.type == pg.MOUSEBUTTONUP:
+                self.mouse_up(pg.mouse.get_pos())
+            if e.type == pg.KEYDOWN:
+                self.key_down(e)
+            if e.type == pg.KEYUP:
+                self.key_up(e)
+
     def update(self, delta_time):
         for m in self._members:
             m.update(delta_time)
