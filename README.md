@@ -1,9 +1,7 @@
 # PygameGui
 Simple GUI for pygame
 
-<b>TODO: Function & Callback (for button)</b>
-
-Usage:
+<b>Usage:</b>
 
 Import classes
 
