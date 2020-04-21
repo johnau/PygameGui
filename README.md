@@ -20,10 +20,14 @@ Create Input Group
 Create Inputs (names must be unique within the group)
 
     label = Label(self.inputs, name = "label1", width = 200, text = "A Text Label", center = (200, 100))
-    button = Button(self.inputs, name = "button1", width = 200,  text = "A Button", center = (200, 150))
+    
     textbox = TextBox(self.inputs, name = "text1", width = 200, center = (200, 200))
+    
     choice = ChoiceBox(self.inputs, name = "choice1", width = 200, center = (200, 250))
-
+    
+    click_func = lambda: print(f"Textbox text: {textbox.text}")
+    button = Button(self.inputs, name = "button1", width = 200,  text = "A Button", center = (200, 150), on_click = click_func)
+    
 Update (probably from update(delta_time) function)
 
 `self.inputs.update(delta_time)`
