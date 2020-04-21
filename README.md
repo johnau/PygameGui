@@ -9,9 +9,9 @@ Import classes
 
 `from userinput import UserInputGroup, Button, TextBox, Label, ChoiceBox`
 
-Pygame screen
+Pygame screen (to pass to draw function below)
 
-`self.screen = pg.display.set_mode([600, 600])` 
+`self.screen = pygame.display.set_mode([600, 600])` 
 
 Create Input Group
 
