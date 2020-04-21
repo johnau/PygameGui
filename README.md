@@ -23,7 +23,7 @@ Create Inputs (names must be unique within the group)
     
     textbox = TextBox(self.inputs, name = "text1", width = 200, center = (200, 200))
     
-    choice = ChoiceBox(self.inputs, name = "choice1", width = 200, center = (200, 250))
+    choice = ChoiceBox(self.inputs, name = "choice1", width = 200, center = (200, 250), items = ["one", "two", "three"])
     
     click_func = lambda: print(f"Textbox text: {textbox.text}")
     button = Button(self.inputs, name = "button1", width = 200,  text = "A Button", center = (200, 150), on_click = click_func)
