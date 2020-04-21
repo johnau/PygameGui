@@ -17,14 +17,15 @@ Create Input Group
 
 Create Inputs (names must be unique within the group)
 
-    label = Label(self.inputs, name = "label1", width = 200, text = "A Text Label", center = (200, 100))
+    label = Label(self.inputs, "label1")
     
-    textbox = TextBox(self.inputs, name = "text1", width = 200, center = (200, 200))
+    textbox = TextBox(self.inputs, "text1")
     
-    choice = ChoiceBox(self.inputs, name = "choice1", width = 200, center = (200, 250), items = ["one", "two", "three"])
+    choice_itms = ["one", "two", "three"]
+    choice = ChoiceBox(self.inputs, "choice1", choice_itms)
     
     click_func = lambda: print(f"Textbox text: {textbox.text}")
-    button = Button(self.inputs, name = "button1", width = 200,  text = "A Button", center = (200, 150), on_click = click_func)
+    button = Button(self.inputs, "button1", on_click = click_func)
     
 Pass Through Events
     
@@ -44,7 +45,6 @@ Access value (called when needed)
 
 List of keyword args that can be passed into the constructor of each input, with default value
 
-        ("name", '')
         ("center", (0,0))
         ("text", '')
         ("font", pg.font.SysFont('Arial', 16, False, False))
@@ -69,11 +69,12 @@ List of keyword args that can be passed into the constructor of each input, with
         def __init__(self):
             self.screen = pygame.display.set_mode([600, 600])
             self.inputs = UserInputGroup()
-            label = Label(self.inputs, name = "label1", width = 200, text = "A Text Label", center = (200, 100))
-            textbox = TextBox(self.inputs, name = "text1", width = 200, center = (200, 150))
-            choice = ChoiceBox(self.inputs, name = "choice1", width = 200, center = (200, 250), items = ["one", "two", "three"])
+            label = Label(self.inputs, "label1", width = 200, text = "A Text Label", center = (200, 100))
+            textbox = TextBox(self.inputs, "text1", width = 200, center = (200, 150))
+            choice_items = ["one", "two", "three"]
+            choice = ChoiceBox(self.inputs, "choice1", choice_items, width = 200, center = (200, 250))
             click_func = lambda: print(f"Textbox text: {textbox.text}, Choicebox choice: {choice.text}")
-            button = Button(self.inputs, name = "button1", width = 200,  text = "A Button", center = (200, 350), on_click = click_func)
+            button = Button(self.inputs, "button1", width = 200,  text = "A Button", center = (200, 350), on_click = click_func)
 
         def handle_events(self, events):
             self.inputs.process_events(events)
