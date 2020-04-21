@@ -75,15 +75,7 @@ List of keyword args that can be passed into the constructor of each input, with
             button = Button(self.inputs, name = "button1", width = 200,  text = "A Button", center = (200, 350), on_click = click_func)
 
         def handle_events(self, events):
-            for e in events:
-                if e.type == pygame.MOUSEBUTTONDOWN:
-                    self.inputs.mouse_down(pygame.mouse.get_pos())
-                if e.type == pygame.MOUSEBUTTONUP:
-                    self.inputs.mouse_up(pygame.mouse.get_pos())
-                if e.type == pygame.KEYDOWN:
-                    self.inputs.key_down(e)
-                if e.type == pygame.KEYUP:
-                    self.inputs.key_up(e)
+            self.inputs.process_events(events)
 
         def update(self, delta_time):
             self.inputs.update(delta_time)
