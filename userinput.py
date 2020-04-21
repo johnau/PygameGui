@@ -350,7 +350,14 @@ class ChoiceBox(UserInput):
     @items.setter
     def items(self, items):
         if isinstance(items, list):
-            self._items = items
+            self._items.clear()
+            for i in items:
+                if isinstance(i, str): self._items.append(i)
+                else:
+                    try:
+                        self._items.append(str(i))
+                    except:
+                        print("Could not add item: {i}")
             self.dirty = True
         elif isinstance(items, str):
             self._items.append(str)
