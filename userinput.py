@@ -288,13 +288,6 @@ class TextBox(UserInput):
             if chr:
                 self._text += chr
 
-    def on_mousedown(self):
-        super().on_mousedown()
-        self.dirty = True
-
-    def on_mouseup(self):
-        super().on_mouseup()
-
 class Label(UserInput):
     def __init__(self, parent_group, **kwargs):
         ta = kwargs.pop("text_align", 1)
@@ -358,10 +351,10 @@ class ChoiceBox(UserInput):
                         self._items.append(str(i))
                     except:
                         print("Could not add item: {i}")
-            self.dirty = True
+            self._dirty = True
         elif isinstance(items, str):
             self._items.append(str)
-            self.dirty = True
+            self._dirty = True
         else:
             print("Unsupported item added to choicebox")
 
@@ -370,12 +363,8 @@ class ChoiceBox(UserInput):
         if key_event.key == pg.K_UP:
             self._item_idx -= 1
             if self._item_idx < 0: self._item_idx = len(self._items)-1
-            self.dirty = True
+            self._dirty = True
         elif key_event.key == pg.K_DOWN:
             self._item_idx += 1
             if self._item_idx > len(self._items)-1: self._item_idx = 0
-            self.dirty = True
-
-    def on_mousedown(self):
-        super().on_mousedown()
-        self.dirty = True
+            self._dirty = True
