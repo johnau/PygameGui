@@ -26,14 +26,14 @@ class UserInputGroup:
             hit = m.rect.collidepoint(mouse_pos)
             if hit:
                 m.on_mousedown()
-                if m.has_focus: self.remove_focus_except(m)
+                self.set_focus_on(m)
                 any_hit = 1
                 break
 
         if not any_hit:
             for m in self._members:
                 m.reset()
-                self.remove_focus_except(None)
+                self.set_focus_on(None)
 
     def mouse_up(self, mouse_pos):
         any_hit = 0
@@ -41,7 +41,6 @@ class UserInputGroup:
             hit = m.rect.collidepoint(mouse_pos)
             if hit:
                 m.on_mouseup()
-                if m.has_focus: self.remove_focus_except(m)
                 any_hit = 1
                 break
 
@@ -58,10 +57,17 @@ class UserInputGroup:
     def key_up(self, key_event):
         pass
 
-    def remove_focus_except(self, ip):
+    def set_focus_on(self, ip):
         for m in self._members:
-            if not m is ip:
+            if m is ip:
+                m.has_focus = True
+            else:
                 m.has_focus = False
+
+    #def remove_focus_except(self, ip):
+    #    for m in self._members:
+    #        if not m is ip:
+    #            m.has_focus = False
 
     def clear(self):
         self._members = []
@@ -74,10 +80,6 @@ class UserInputGroup:
 
     def __iadd__(self, ip):
         assert ip is not None
-        #if isinstance(ip, (tuple, list)):
-        #    self._members += ip
-        #    return self
-
         for m in self._members:
             if ip.name == m.name:
                 raise ValueError(f"Already have an input named: {ip.name}")
@@ -150,7 +152,7 @@ class UserInput(pg.sprite.Sprite):
             r(surf, self._width, self._height, foreground, background, highlight, self._padding, self._font, self._text, self._border_thick)
 
         self.image = surf.convert()
-        self.dirty = False
+        self._dirty = False
 
     def _render_bg(self, surf, width, height, foreground, background, highlight, padding, font, text, border_thick):
         surf.fill(background)
@@ -190,6 +192,7 @@ class UserInput(pg.sprite.Sprite):
     @has_focus.setter
     def has_focus(self, b):
         self._has_focus = b
+        self._dirty = True
 
     @property
     def name(self):
@@ -228,18 +231,18 @@ class UserInput(pg.sprite.Sprite):
     def on_mousedown(self):
         if not self._down:
             self._down = True
-            self.dirty = True
+        self._dirty = True
 
-    def on_mouseup(self, hit = False):
+    def on_mouseup(self):
         if self._down:
             self._down = False
-            self.dirty = True
+        self._dirty = True
 
     def on_keydown(self, key_event):
-        pass
+        self._dirty = True
 
     def on_keyup(self, key_event):
-        pass
+        self._dirty = True
 
 class Button(UserInput):
     def __init__(self, parent_group, **kwargs):
@@ -251,13 +254,11 @@ class Button(UserInput):
     
     def on_mousedown(self):
         super().on_mousedown()
-        self._has_focus = True
 
     def on_mouseup(self):
         super().on_mouseup()
         self._on_click_fn()
         self._has_focus = False
-        self.dirty = True
 
 class TextBox(UserInput):
     def __init__(self, parent_group, **kwargs):
@@ -267,23 +268,20 @@ class TextBox(UserInput):
         super().__init__(parent_group, text_align = ta, fg_color = fg, bg_color = bg, **kwargs)
 
     def on_keydown(self, key_event):
+        super().on_keydown(key_event)
         if key_event.key == pg.K_BACKSPACE:
             if self._text: self._text = self._text[:-1]
-            self.dirty = True
         else:
             chr = key_event.unicode
             if chr:
                 self._text += chr
-                self.dirty = True
 
     def on_mousedown(self):
         super().on_mousedown()
-        if not self._has_focus:
-            self._has_focus = True
-            self.dirty = True
+        self.dirty = True
 
-    def on_mouseup(self, hit = False):
-        super().on_mouseup(hit)
+    def on_mouseup(self):
+        super().on_mouseup()
 
 class Label(UserInput):
     def __init__(self, parent_group, **kwargs):
@@ -349,6 +347,7 @@ class ChoiceBox(UserInput):
             print("Unsupported item added to choicebox")
 
     def on_keydown(self, key_event):
+        super().on_keydown(key_event)
         if key_event.key == pg.K_UP:
             self._item_idx -= 1
             if self._item_idx < 0: self._item_idx = len(self._items)-1
@@ -360,9 +359,4 @@ class ChoiceBox(UserInput):
 
     def on_mousedown(self):
         super().on_mousedown()
-        if not self._has_focus:
-            self._has_focus = True
-            self.dirty = True
-
-    def on_mouseup(self, hit = False):
-        super().on_mouseup(hit)
+        self.dirty = True
