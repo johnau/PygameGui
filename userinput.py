@@ -114,11 +114,12 @@ class UserInput(pg.sprite.Sprite):
         self._padding = kwargs.pop("padding", 20)
         self._bg_color = kwargs.pop("bg_color", (0,0,0))
         self._fg_color = kwargs.pop("fg_color", (255,255,255))
-        self._hl_color = kwargs.pop("hl_color", (0,50,200))
+        self._hl_color = kwargs.pop("hl_color", (0,100,200))
         self._border_thick = kwargs.pop("border_thick", 2)
         self._text = kwargs.pop("text", '')
         self._font = kwargs.pop("font", pg.font.SysFont('Arial', False, False, 16))
         self._text_align = kwargs.pop("text_align", 1) # 1: left, 2: center, 3: right
+        self._on_click_fn = kwargs.pop("on_click", lambda: None)
 
         surf = pg.Surface((self._width, self._height))
         self.image = surf.convert()
@@ -194,10 +195,6 @@ class UserInput(pg.sprite.Sprite):
     def name(self):
         return self._name
 
-    #@name.setter
-    #def name(self, n):
-    #    self._name = n
-
     @property
     def width(self):
         return self._width
@@ -254,7 +251,7 @@ class Button(UserInput):
     
     def on_mouseup(self):
         super().on_mouseup()
-        print("Activate button")
+        self._on_click_fn()
         self._has_focus = True
         self.dirty = True
 
