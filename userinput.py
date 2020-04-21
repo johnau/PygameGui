@@ -111,15 +111,15 @@ class UserInput(pg.sprite.Sprite):
 
         self._name = kwargs.pop("name", '')
         self._center = kwargs.pop("center", (0,0))
-        self._width = kwargs.pop("width", 50)
-        self._height = kwargs.pop("height", 20)
+        self._width = kwargs.pop("width", 100)
+        self._height = kwargs.pop("height", 50)
         self._padding = kwargs.pop("padding", 20)
         self._bg_color = kwargs.pop("bg_color", (0,0,0))
         self._fg_color = kwargs.pop("fg_color", (255,255,255))
         self._hl_color = kwargs.pop("hl_color", (0,100,200))
         self._border_thick = kwargs.pop("border_thick", 2)
         self._text = kwargs.pop("text", '')
-        self._font = kwargs.pop("font", pg.font.SysFont('Arial', False, False, 16))
+        self._font = kwargs.pop("font", pg.font.SysFont('Arial', 16, False, False))
         self._text_align = kwargs.pop("text_align", 1) # 1: left, 2: center, 3: right
         self._on_click_fn = kwargs.pop("on_click", lambda: None)
 
@@ -307,7 +307,7 @@ class ChoiceBox(UserInput):
         self._render_chain.insert(len(self._render_chain)-2, lambda surf, width, height, foreground, background, highlight, padding, font, text, border_thick: self._render_arrows(surf, width, height, foreground, background, highlight, padding, font, text, border_thick))
 
     def _render_arrows(self, surf, width, height, foreground, background, highlight, padding, font, text, border_thick):
-        aw = 14
+        aw = self._height//5
         
         pg.draw.rect(surf, background, pg.Rect(width-border_thick*4-aw, border_thick, aw+border_thick*4, height-border_thick*2), 0)
 
