@@ -1,7 +1,7 @@
 # PygameGui
 Simple GUI for pygame
 
-TODO: Function & Callback for button
+<b>TODO: Function & Callback (for button)</b>
 
 Usage:
 
