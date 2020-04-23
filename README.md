@@ -5,7 +5,7 @@ Simple GUI for pygame
 
 Import classes
 
-`from userinput import UserInputGroup, Button, TextBox, Label, ChoiceBox`
+`from usercontrol import UserControlGroup, Button, TextBox, Label, ChoiceBox`
 
 Pygame screen (to pass to draw function below)
 
@@ -63,12 +63,12 @@ List of keyword args that can be passed into the constructor of each input, with
 <b>Minimal working example:</b>
 
     import pygame
-    from userinput import UserInputGroup, Button, TextBox, Label, ChoiceBox
+    from usercontrol import UserControlGroup, Button, TextBox, Label, ChoiceBox
 
     class App:
         def __init__(self):
             self.screen = pygame.display.set_mode([600, 600])
-            self.inputs = UserInputGroup()
+            self.inputs = UserControlGroup()
             label = Label(self.inputs, "label1", width = 200, text = "A Text Label", center = (200, 100))
             textbox = TextBox(self.inputs, "text1", width = 200, center = (200, 150))
             choice_items = ["one", "two", "three"]
